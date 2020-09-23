@@ -4,6 +4,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:fl_chart/fl_chart.dart';
 
+import 'test.dart';
+
 List<SportCenterList> sportCenterListFromJson(String str) =>
     List<SportCenterList>.from(
         json.decode(str).map((x) => SportCenterList.fromJson(x)));
@@ -101,12 +103,13 @@ class _MyHomePageState extends State<MyHomePage> {
             future: getData(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
+                return Center(child: PieChartSample2());
                 return GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2, childAspectRatio: 1.0),
+                        crossAxisCount: 2, childAspectRatio: 2 / 1),
                     itemCount: snapshot.data.length,
                     itemBuilder: (context, index) {
-                      return Text(snapshot.data[index].zHname);
+                      return PeoplePieChart(sportcenter: snapshot.data[index]);
                     });
               } else {
                 return Center(
@@ -139,28 +142,29 @@ class _PeoplePieChartState extends State<PeoplePieChart> {
   @override
   Widget build(BuildContext context) {
     return Container(
+        color: Colors.red,
         child: Row(
-      children: [
-        PieChart(
-          PieChartData(
-            pieTouchData: PieTouchData(touchCallback: (pieTouchResponse) {
-              setState(() {
-                if (pieTouchResponse.touchInput is FlLongPressEnd ||
-                    pieTouchResponse.touchInput is FlPanEnd) {
-                  touchedIndex[0] = -1;
-                } else {
-                  touchedIndex[0] = pieTouchResponse.touchedSectionIndex;
-                }
-              });
-            }),
-            borderData: FlBorderData(show: false),
-            sectionsSpace: 0,
-            centerSpaceRadius: 40,
-            // read about it in the below section
-          ),
-        ),
-      ],
-    ));
+          children: [
+            PieChart(
+              PieChartData(
+                pieTouchData: PieTouchData(touchCallback: (pieTouchResponse) {
+                  setState(() {
+                    if (pieTouchResponse.touchInput is FlLongPressEnd ||
+                        pieTouchResponse.touchInput is FlPanEnd) {
+                      touchedIndex[0] = -1;
+                    } else {
+                      touchedIndex[0] = pieTouchResponse.touchedSectionIndex;
+                    }
+                  });
+                }),
+                borderData: FlBorderData(show: false),
+                sectionsSpace: 0,
+                centerSpaceRadius: double.infinity,
+                // read about it in the below section
+              ),
+            ),
+          ],
+        ));
   }
 }
 
