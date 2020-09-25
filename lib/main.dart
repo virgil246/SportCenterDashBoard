@@ -84,12 +84,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       body: Center(
         child: FutureBuilder(
             future: getData(),
@@ -110,7 +107,6 @@ class _MyHomePageState extends State<MyHomePage> {
               }
             }),
       ),
- 
     );
   }
 }
@@ -124,8 +120,8 @@ class PeoplePieChart extends StatefulWidget {
 }
 
 class _PeoplePieChartState extends State<PeoplePieChart> {
-  List<PieChartSectionData> showingSections(List<dynamic> data) {
-    final double radius = 30;
+  List<PieChartSectionData> showingSections(List<dynamic> data, radius) {
+    print(radius);
     List<double> doubledata = (data.map((e) => double.parse(e)).toList());
     return List.generate(2, (index) {
       switch (index) {
@@ -134,13 +130,16 @@ class _PeoplePieChartState extends State<PeoplePieChart> {
               radius: radius,
               value: doubledata[0],
               color: Colors.red,
-              title: data[0].toString());
+              title: data[0].toString(),
+              showTitle: radius < 22 ? false : true);
         case 1:
           return PieChartSectionData(
               radius: radius,
               value: doubledata[1] - doubledata[0],
               color: Colors.green,
-              title: (doubledata[1] - doubledata[0]).toString());
+              title: (doubledata[1] - doubledata[0]).toString(),
+              showTitle: radius < 22 ? false : true);
+
         default:
           return null;
       }
@@ -148,53 +147,72 @@ class _PeoplePieChartState extends State<PeoplePieChart> {
   }
 
   List<Widget> createPie(dynamic data) {
-    double centerSpaceRadius = 50;
     return List.generate(data.length, (index) {
       switch (index) {
         case 0:
           return Expanded(
-            child: Stack(children: [
-              Center(
-                child: Text("健身房",style: TextStyle(fontSize: 22),),
-              ),
-              PieChart(
-                PieChartData(
-                    borderData: FlBorderData(show: false),
-                    sectionsSpace: 0,
-                    centerSpaceRadius: centerSpaceRadius,
-                    sections: showingSections(
-                        data["gym"] != null ? data["gym"] : null)),
-              ),
-            ]),
+            child: LayoutBuilder(
+              builder: (context, constrain) {
+                return Stack(children: [
+                  Center(
+                      child: Text("健身房",
+                          style: TextStyle(
+                            fontSize: constrain.maxHeight / 11,
+                          ))),
+                  PieChart(
+                    PieChartData(
+                        borderData: FlBorderData(show: false),
+                        sectionsSpace: 0,
+                        centerSpaceRadius: constrain.maxHeight / 5,
+                        sections: showingSections(
+                            data["gym"] != null ? data["gym"] : null,
+                            constrain.maxWidth / 5)),
+                  ),
+                ]);
+              },
+            ),
           );
         case 1:
           return Expanded(
-            child: Stack(children: [
-              Center(child: Text("游泳池",style: TextStyle(fontSize: 22))),
-              PieChart(
-                PieChartData(
-                    borderData: FlBorderData(show: false),
-                    sectionsSpace: 0,
-                    centerSpaceRadius: centerSpaceRadius,
-                    sections: showingSections(
-                        data["swim"] != null ? data["swim"] : null)),
-              ),
-            ]),
+            child: LayoutBuilder(
+              builder: (context, constrain) {
+                return Stack(children: [
+                  Center(
+                      child: Text("游泳池",
+                          style:
+                              TextStyle(fontSize: constrain.maxHeight / 11))),
+                  PieChart(
+                    PieChartData(
+                        borderData: FlBorderData(show: false),
+                        sectionsSpace: 0,
+                        centerSpaceRadius: constrain.maxHeight / 5,
+                        sections: showingSections(
+                            data["swim"] != null ? data["swim"] : null,
+                            constrain.maxWidth / 5)),
+                  ),
+                ]);
+              },
+            ),
           );
         case 2:
-          return Expanded(
-            child: Stack(children: [
-              Center(child: Text("溜冰場",style: TextStyle(fontSize: 22))),
-              PieChart(
-                PieChartData(
-                    borderData: FlBorderData(show: false),
-                    sectionsSpace: 0,
-                    centerSpaceRadius: centerSpaceRadius,
-                    sections: showingSections(
-                        data["ice"] != null ? data["ice"] : null)),
-              ),
-            ]),
-          );
+          return Expanded(child: LayoutBuilder(
+            builder: (context, constrain) {
+              return Stack(children: [
+                Center(
+                    child: Text("溜冰場",
+                        style: TextStyle(fontSize: constrain.maxHeight / 11))),
+                PieChart(
+                  PieChartData(
+                      borderData: FlBorderData(show: false),
+                      sectionsSpace: 0,
+                      centerSpaceRadius: constrain.maxHeight / 5,
+                      sections: showingSections(
+                          data["ice"] != null ? data["ice"] : null,
+                          constrain.maxWidth / 5)),
+                ),
+              ]);
+            },
+          ));
         default:
           return null;
       }
@@ -221,9 +239,13 @@ class _PeoplePieChartState extends State<PeoplePieChart> {
         ),
         Expanded(
           flex: 1,
-          child: Text(
-            widget.sportcenter.zHname,
-            style: TextStyle(fontSize: 30),
+          child: LayoutBuilder(
+            builder: (context, constrain) {
+              return Text(
+                widget.sportcenter.zHname,
+                style: TextStyle(fontSize: constrain.minHeight / 2.2),
+              );
+            },
           ),
         ),
         Expanded(
@@ -240,20 +262,27 @@ class _PeoplePieChartState extends State<PeoplePieChart> {
                               mainAxisSize: MainAxisSize.max,
                               mainAxisAlignment: MainAxisAlignment.end,
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const <Widget>[
+                              children: <Widget>[
                                 Indicator(
                                   color: Colors.green,
                                   text: '剩餘可容納人數',
                                   isSquare: false,
+                                  showText:
+                                      MediaQuery.of(context).size.width > 540
+                                          ? true
+                                          : false,
                                 ),
                                 SizedBox(
                                   height: 4,
                                 ),
                                 Indicator(
-                                  color: Colors.red,
-                                  text: '在館人數',
-                                  isSquare: false,
-                                ),
+                                    color: Colors.red,
+                                    text: '在館人數',
+                                    isSquare: false,
+                                    showText:
+                                        MediaQuery.of(context).size.width > 540
+                                            ? true
+                                            : false),
                                 SizedBox(
                                   height: 18,
                                 ),
