@@ -103,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
             future: getData(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
-                return Center(child: PieChartSample2());
+                // return Center(child: PieChartSample2());
                 return GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2, childAspectRatio: 2 / 1),
@@ -141,26 +141,68 @@ class _PeoplePieChartState extends State<PeoplePieChart> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Card(
         color: Colors.red,
         child: Row(
           children: [
-            PieChart(
-              PieChartData(
-                pieTouchData: PieTouchData(touchCallback: (pieTouchResponse) {
-                  setState(() {
-                    if (pieTouchResponse.touchInput is FlLongPressEnd ||
-                        pieTouchResponse.touchInput is FlPanEnd) {
-                      touchedIndex[0] = -1;
-                    } else {
-                      touchedIndex[0] = pieTouchResponse.touchedSectionIndex;
-                    }
-                  });
-                }),
-                borderData: FlBorderData(show: false),
-                sectionsSpace: 0,
-                centerSpaceRadius: double.infinity,
-                // read about it in the below section
+            Expanded(
+              child: PieChart(
+                PieChartData(
+                    borderData: FlBorderData(show: true),
+                    sectionsSpace: 0,
+                    centerSpaceRadius: 20,
+                    sections: [
+                      PieChartSectionData(
+                          color: Colors.amber,
+                          value: 50,
+                          title: "40%",
+                          radius: 20),
+                      PieChartSectionData(
+                          color: Colors.green,
+                          value: 40,
+                          title: "40%",
+                          radius: 20)
+                    ]),
+              ),
+            ),
+            Expanded(
+              child: PieChart(
+                PieChartData(
+                    borderData: FlBorderData(show: true),
+                    sectionsSpace: 0,
+                    centerSpaceRadius: 20,
+                    sections: [
+                      PieChartSectionData(
+                          color: Colors.amber,
+                          value: 50,
+                          title: "40%",
+                          radius: 20),
+                      PieChartSectionData(
+                          color: Colors.green,
+                          value: 40,
+                          title: "40%",
+                          radius: 20)
+                    ]),
+              ),
+            ),
+            Expanded(
+              child: PieChart(
+                PieChartData(
+                    borderData: FlBorderData(show: true),
+                    sectionsSpace: 0,
+                    centerSpaceRadius: 20,
+                    sections: [
+                      PieChartSectionData(
+                          color: Colors.amber,
+                          value: 50,
+                          title: "40%",
+                          radius: 20),
+                      PieChartSectionData(
+                          color: Colors.green,
+                          value: 40,
+                          title: "40%",
+                          radius: 20)
+                    ]),
               ),
             ),
           ],
