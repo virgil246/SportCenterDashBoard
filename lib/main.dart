@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:fl_chart/fl_chart.dart';
 
+import 'Indicator.dart';
 import 'test.dart';
 
 List<SportCenterList> sportCenterListFromJson(String str) =>
@@ -43,7 +44,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: '國民運動中心在館人數',
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -84,20 +85,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
+      
       body: Center(
         child: FutureBuilder(
             future: getData(),
@@ -136,77 +129,153 @@ class PeoplePieChart extends StatefulWidget {
 }
 
 class _PeoplePieChartState extends State<PeoplePieChart> {
-  List<int> touchedIndex = new List(2);
-  // PeoplePieChart({})
+  List<PieChartSectionData> showingSections(List<dynamic> data) {
+    final double radius = 30;
+    List<double> doubledata = (data.map((e) => double.parse(e)).toList());
+    return List.generate(2, (index) {
+      switch (index) {
+        case 0:
+          return PieChartSectionData(
+              radius: radius,
+              value: doubledata[0],
+              color: Colors.red,
+              title: data[0].toString());
+        case 1:
+          return PieChartSectionData(
+              radius: radius,
+              value: doubledata[1] - doubledata[0],
+              color: Colors.green,
+              title: (doubledata[1] - doubledata[0]).toString());
+        default:
+          return null;
+      }
+    });
+  }
+
+  List<Widget> createPie(dynamic data) {
+    double centerSpaceRadius = 50;
+    return List.generate(data.length, (index) {
+      switch (index) {
+        case 0:
+          return Expanded(
+            child: Stack(children: [
+              Center(
+                child: Text("健身房",style: TextStyle(fontSize: 22),),
+              ),
+              PieChart(
+                PieChartData(
+                    borderData: FlBorderData(show: false),
+                    sectionsSpace: 0,
+                    centerSpaceRadius: centerSpaceRadius,
+                    sections: showingSections(
+                        data["gym"] != null ? data["gym"] : null)),
+              ),
+            ]),
+          );
+        case 1:
+          return Expanded(
+            child: Stack(children: [
+              Center(child: Text("游泳池",style: TextStyle(fontSize: 22))),
+              PieChart(
+                PieChartData(
+                    borderData: FlBorderData(show: false),
+                    sectionsSpace: 0,
+                    centerSpaceRadius: centerSpaceRadius,
+                    sections: showingSections(
+                        data["swim"] != null ? data["swim"] : null)),
+              ),
+            ]),
+          );
+        case 2:
+          return Expanded(
+            child: Stack(children: [
+              Center(child: Text("溜冰場",style: TextStyle(fontSize: 22))),
+              PieChart(
+                PieChartData(
+                    borderData: FlBorderData(show: false),
+                    sectionsSpace: 0,
+                    centerSpaceRadius: centerSpaceRadius,
+                    sections: showingSections(
+                        data["ice"] != null ? data["ice"] : null)),
+              ),
+            ]),
+          );
+        default:
+          return null;
+      }
+    });
+  }
+
+  Future<dynamic> getData() async {
+    var r = await Dio().get("https://cors-anywhere.herokuapp.com/" +
+        widget.sportcenter.uri +
+        "api");
+
+    // print(json.decode(r.data)["gym"]);
+
+    return json.decode(r.data);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Card(
-        color: Colors.red,
-        child: Row(
-          children: [
-            Expanded(
-              child: PieChart(
-                PieChartData(
-                    borderData: FlBorderData(show: true),
-                    sectionsSpace: 0,
-                    centerSpaceRadius: 20,
-                    sections: [
-                      PieChartSectionData(
-                          color: Colors.amber,
-                          value: 50,
-                          title: "40%",
-                          radius: 20),
-                      PieChartSectionData(
-                          color: Colors.green,
-                          value: 40,
-                          title: "40%",
-                          radius: 20)
-                    ]),
-              ),
-            ),
-            Expanded(
-              child: PieChart(
-                PieChartData(
-                    borderData: FlBorderData(show: true),
-                    sectionsSpace: 0,
-                    centerSpaceRadius: 20,
-                    sections: [
-                      PieChartSectionData(
-                          color: Colors.amber,
-                          value: 50,
-                          title: "40%",
-                          radius: 20),
-                      PieChartSectionData(
-                          color: Colors.green,
-                          value: 40,
-                          title: "40%",
-                          radius: 20)
-                    ]),
-              ),
-            ),
-            Expanded(
-              child: PieChart(
-                PieChartData(
-                    borderData: FlBorderData(show: true),
-                    sectionsSpace: 0,
-                    centerSpaceRadius: 20,
-                    sections: [
-                      PieChartSectionData(
-                          color: Colors.amber,
-                          value: 50,
-                          title: "40%",
-                          radius: 20),
-                      PieChartSectionData(
-                          color: Colors.green,
-                          value: 40,
-                          title: "40%",
-                          radius: 20)
-                    ]),
-              ),
-            ),
-          ],
-        ));
+        child: Column(
+      children: [
+        SizedBox(
+          height: 10,
+        ),
+        Expanded(
+          flex: 1,
+          child: Text(
+            widget.sportcenter.zHname,
+            style: TextStyle(fontSize: 30),
+          ),
+        ),
+        Expanded(
+          flex: 4,
+          child: FutureBuilder(
+            future: getData(),
+            builder: (context, snap) {
+              if (snap.connectionState == ConnectionState.done) {
+                {
+                  return Row(
+                      children: createPie(snap.data) +
+                          [
+                            Column(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const <Widget>[
+                                Indicator(
+                                  color: Colors.green,
+                                  text: '剩餘可容納人數',
+                                  isSquare: false,
+                                ),
+                                SizedBox(
+                                  height: 4,
+                                ),
+                                Indicator(
+                                  color: Colors.red,
+                                  text: '在館人數',
+                                  isSquare: false,
+                                ),
+                                SizedBox(
+                                  height: 18,
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              width: 10,
+                            )
+                          ]);
+                }
+              }
+              return Center(child: CircularProgressIndicator());
+            },
+          ),
+        ),
+      ],
+    ));
   }
 }
 
