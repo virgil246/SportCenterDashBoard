@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'package:fl_chart/fl_chart.dart';
 
 import 'Indicator.dart';
-import 'test.dart';
 
 List<SportCenterList> sportCenterListFromJson(String str) =>
     List<SportCenterList>.from(
